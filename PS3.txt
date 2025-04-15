@@ -1,3 +1,4 @@
+--Rules to grammar--
 from collections import defaultdict
 
 def read_grammar_from_file(filename):
@@ -17,6 +18,32 @@ base_grammar = read_grammar_from_file("grammar.txt")
 # Display it
 from pprint import pprint
 pprint(base_grammar)
+
+--Tree to tuple--
+def load_trees_from_file(path):
+    with open(path, "r") as f:
+        lines = f.readlines()
+    return [tree_to_tuple(Tree.fromstring(line.strip())) for line in lines]
+
+def tree_to_tuple(nltk_tree):
+    if isinstance(nltk_tree, str):
+        return nltk_tree
+    if len(nltk_tree) == 1 and isinstance(nltk_tree[0], str):
+        return (nltk_tree.label(), nltk_tree[0])  # Terminal
+    elif len(nltk_tree) == 2:
+        left = tree_to_tuple(nltk_tree[0])
+        right = tree_to_tuple(nltk_tree[1])
+        return (nltk_tree.label(), left, right)
+    else:
+        raise ValueError(f"Unexpected number of children in tree: {nltk_tree}")
+
+# From string
+bracketed = "(S (NP John) (VP (V called) (NP (NP Mary) (PP (P from) (NP Denver)))))"
+tree = Tree.fromstring(bracketed)
+tuple_tree = tree_to_tuple(tree)
+
+# From file
+# trees = load_trees_from_file("path/to/your/file.txt")
 
 --CYK--
 from nltk.tree import Tree
